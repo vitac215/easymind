@@ -1,319 +1,241 @@
-function tree(){
-	// Define the initial property
-	// ws: width space
-	var svgW = 1000, svgH = 1000, vRad = 20, tree = {x:500, y:50, w: 150, h: 50, rx: 15, ry: 15, ws:130, hs:100};
+var margin = {top: 50, right: 120, bottom: 20, left: 300},
+    width = 100,
+    height = 500 - margin.top - margin.bottom,
+    i = 0;
 
-	// Define the initial node property
-	tree.vis = {
-		v:0, 
-		l:'Concept', 
-		p:{x: tree.x - tree.w/2, y: tree.y - tree.h/2, lx: tree.x, ly: tree.y, w: tree.w, h: tree.h, rx: tree.rx, ry: tree.ry},  // property: position (x, y) and size (w, h, rx, ry)
-		c:[]
-	};	
+var tree = d3.layout.tree()
+        .size([height, width]);
 
-	// Define the initial tree size
-	tree.size = 1;
-	
-	tree.getVertices = function(){
-		// console.log("getVertices");
-		var vertices =[];
-		function getVertices(treeNode, parentNodeProperty){	
-			vertices.push({
-				v: treeNode.v, 
-				l: treeNode.l, 
-				p: treeNode.p, 
-				f: parentNodeProperty
-			});	
-			treeNode.c.forEach(function(d){ 
-				return getVertices(d, {v: treeNode.v, p: treeNode.p}); 
-			});
-		}
-		getVertices(tree.vis, {});
-		// Sort by ascending order by vertex
-		return vertices.sort(function(a, b){ 
-			return a.v - b.v;
-		}); 
-	}
-	
-	tree.getEdges =  function(){
-		// console.log("getEdges");
-		var edges =[];
-		function getEdges(treeNode){
-			treeNode.c.forEach(function(d){ 
-				edges.push({
-					v1: treeNode.v, // original node
-					l1: treeNode.l, 
-					p1: treeNode.p, 
-					v2: d.v,  		// new child node
-					l2: d.l, 
-					p2: d.p
-				});
-			});
-			treeNode.c.forEach(getEdges);
-		}
-		getEdges(tree.vis);
-		return edges.sort(function(a, b){ 
-			return a.v2 - b.v2;
-		});	
-	}
-	
-	tree.addLeaf = function(v){
-		console.log("addLeaf");
-		function addLeaf(treeNode){
-			if (treeNode.v == v) { 
-				treeNode.c.push({
-					v: tree.size++, 
-					l: 'Sub', 
-					p: {}, 
-					c: []
-				}); 
-				return; 
-			}
-			treeNode.c.forEach(addLeaf);
-		}
-		addLeaf(tree.vis);
-		reposition(tree.vis);
-		redraw();
-	}
+var root = {"name":"Concept"},
+        nodes = tree(root);
 
-	tree.addButton = function(v){
-		console.log("addButton")
-	}
-	
-	redraw = function(){
-		console.log("redraw");
-		var edges = d3.select("#g_lines").selectAll('line').data(tree.getEdges());
-		
-		edges.transition().duration(500)
-			.attr('x1',function(d) { 
-				return d.p1.lx; 
-			})
-			.attr('y1',function(d) { 
-				return d.p1.ly;
-			})
-			.attr('x2',function(d) { 
-				return d.p2.lx;
-			})
-			.attr('y2',function(d) { 
-				return d.p2.ly;
-			})
-	
-		edges.enter().append('line')
-			.attr('x1',function(d) { 
-				return d.p1.lx;
-			})
-			.attr('y1',function(d) { 
-				return d.p1.ly;
-			})
-			.attr('x2',function(d) { 
-				return d.p1.lx;
-			})
-			.attr('y2',function(d){ 
-				return d.p1.ly;
-			})
-			.transition().duration(500)
-			.attr('x2',function(d) { 
-				return d.p2.lx;
-			})
-			.attr('y2',function(d){ 
-				return d.p2.ly;
-			});
-			
-		var nodes = d3.select("#g_nodes").selectAll('rect').data(tree.getVertices());
+root.parent = null;
+root.px = root.x;  // previous x = current y
+root.py = root.y;  // previous y = current y
 
-		nodes.transition().duration(500)
-			   .attr('x',function(d){ 
-			   		return d.p.x;
-			   	})
-			   .attr('y',function(d){ 
-			   		return d.p.y;
-			   	})
-			   .attr('width',function(d){ 
-					return d.p.w;
-				})
-				.attr('height',function(d){ 
-					return d.p.h;
-				})
-				.attr('rx', function(d){ 
-					return d.p.rx;
-				})
-				.attr('ry', function(d){ 
-					return d.p.ry;
-				});
-		
-		nodes.enter().append('rect')
-			   .attr('x',function(d){ 
-			   		return d.f.p.x;
-			   	})
-			   .attr('y',function(d){ 
-			   		return d.f.p.y;
-			   	})
-				.attr('width',function(d){ 
-					return d.f.p.w;
-				})
-				.attr('height',function(d){ 
-					return d.f.p.h;
-				})
-				.attr('rx', function(d){ 
-					return d.f.p.rx;
-				})
-				.attr('ry', function(d){ 
-					return d.f.p.ry;
-				})
-			   // Click on the node to add a new one
-			   .on('click',function(d){
-			   		return tree.addLeaf(d.v);
-			   	})
-			   .transition().duration(500)
-			   		.attr('x',function(d){ 
-			   			return d.p.x;
-			   		})
-			   		.attr('y',function(d){ 
-			   			return d.p.y;
-			   		})
-					.attr('width',function(d){ 
-						return d.p.w;
-					})
-					.attr('height',function(d){ 
-						return d.p.h;
-					})
-					.attr('rx', function(d){ 
-						return d.p.rx;
-					})
-					.attr('ry', function(d){ 
-						return d.p.ry;
-					});
+var diagonal = d3.svg.diagonal()
+    .projection(function(d) { 
+        return [d.x, d.y]; 
+    });
 
-			
-		// Label text
-		var labels = d3.select("#g_labels").selectAll('text').data(tree.getVertices());
-		
-		labels.text(function(d){
-				return d.l;
-			})
-			.transition().duration(500)
-				.attr('x',function(d){ 
-					// console.log(d.p);
-					return d.p.lx;
-				})
-				.attr('y',function(d){ 
-					return d.p.ly + 5;
-				});
-			
-		labels.enter().append('text')
-			.attr('x',function(d){ 
-				return d.f.p.lx;  
-			})
-			.attr('y',function(d){ 
-				return d.f.p.ly + 5;
-			})
-			.text(function(d){
-				return d.l;
-			})
-			.on('click',function(d){
-				return tree.addLeaf(d.v);
-			})
-			.transition().duration(500)
-				.attr('x',function(d){ 
-					return d.p.lx;
-				})
-				.attr('y',function(d){ 
-					return d.p.ly + 5;
-				});		
-	} // end of redraw
-	
-	getLeafCount = function(_){
-		// console.log("getLeafCount");
-		if (_.c.length ==0) {
-			return 1;
-		} else {
-			return _.c.map(getLeafCount).reduce(function(a,b){ 
-				return a+b;
-			});
-		}
-	}
-	
-	reposition = function(v){
-		console.log("reposition");
-		var leafCount = getLeafCount(v)
-		var left = v.p.lx - tree.ws*(leafCount-1)/2;
-		v.c.forEach(function(d){
-			var widthOffset = tree.ws*getLeafCount(d); 
-			left+=widthOffset; 
-			// Update d.p
-			d.p.w = 120;
-			d.p.h = 40; 
-			d.p.x = left - (widthOffset+tree.ws)/2 - d.p.w/2;
-			d.p.y = v.p.ly + tree.hs - v.p.h/2;
-			d.p.lx = left - (widthOffset+tree.ws)/2;
-			d.p.ly = v.p.y + tree.hs + d.p.h/2;
-			d.p.rx = 15;
-			d.p.ry = 15;
-			// console.log(d.p);
-			reposition(d);
-		});		
-	}	
-	
-	initialize = function(){
-		d3.select("body").append("svg").attr("width", svgW).attr("height", svgH).attr('id','treesvg');
+var svg = d3.select("body").append("svg")
+        .attr("width", width + "%")
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-		d3.select("#treesvg").append('g').attr('id','g_lines').selectAll('line').data(tree.getEdges()).enter().append('line')
-			.attr('x1',function(d){ 
-				return d.p1.x;
-			})
-			.attr('y1',function(d){ 
-				return d.p1.y;
-			})
-			.attr('x2',function(d){ 
-				return d.p2.x;
-			})
-			.attr('y2',function(d){ 
-				return d.p2.y;
-			});
+var node = svg.selectAll(".node");
+var link = svg.selectAll(".link");
 
-		// Draw the initial node
-		d3.select("#treesvg").append('g').attr('id','g_nodes').selectAll('rect').data(tree.getVertices()).enter().append('rect')
-			.attr('x',function(d){ 
-				return d.p.x;
-			})
-			.attr('y',function(d){ 
-				return d.p.y;
-			})
-			.attr('width',function(d){ 
-				return d.p.w;
-			})
-			.attr('height',function(d){ 
-				return d.p.h;
-			})
-			.attr('rx', function(d){ 
-				return d.p.rx;
-			})
-			.attr('ry', function(d){ 
-				return d.p.ry;
-			})
-			.on('click',function(d){
-				return tree.addLeaf(d.v);
-			});
-		
-		// Draw text on the initial node
-		d3.select("#treesvg").append('g').attr('id','g_labels').selectAll('text').data(tree.getVertices()).enter().append('text')
-			.attr('x',function(d){ 
-				return d.p.lx;
-			})
-			.attr('y',function(d){ 
-				return d.p.ly + 5;
-			})
-			.text(function(d){
-				return d.l;
-			})
-			.on('click',function(d){
-				return tree.addLeaf(d.v);
-			});	
-	}
 
-	initialize();
+update();
 
-	return tree;
+
+function update() {
+
+    // Assign nodes
+    var nodes = tree.nodes(root);
+
+    // Define depth and id
+    node = node.data(nodes, function(d) { 
+        d.y = d.depth * 100; 
+        return d.id || (d.id = ++i); 
+    });
+
+    // Enter the nodes
+    var nodeEnter = node.enter().append("g")
+            .attr("class", "node")
+            .attr("id", function(d){
+                return d.id;
+            })
+            .attr("parent", function(d){
+                return d.parent ? d.parent.id : null;
+                // (condition) ? [true path] : [false path];
+            })
+            .attr("transform", function(d) { 
+                return "translate(" + d.x + "," + d.y + ")"; 
+            });
+
+    // Append nodes
+    nodeEnter.append("circle")
+            .attr("r", 15)
+            .style("fill", "#fff");
+
+    // Append minus button
+    nodeEnter.append("circle")
+            .attr("class", "plus")
+            .attr("cx", "-18px")
+            .attr("cy", "18px")
+            .attr("r", 10)
+            .style("fill", "#1F800C")
+            .call(add_node, "name");
+
+    // Append plus button
+    nodeEnter.append("circle")
+            .attr("class", "minus")
+            .attr("cx", "18px")
+            .attr("cy", "18px")
+            .attr("r", 10)
+            .style("fill", "#801f0c")
+            .call(delete_node);
+
+    // Append label text
+    nodeEnter.append("text")
+            .attr("y", -25)
+            .attr("dy", ".35em")
+            .attr("text-anchor", "middle")
+            .text(function(d) { 
+                return d.name; 
+            })
+            .style("fill-opacity", 1)
+            .call(make_editable, "name");
+
+
+    // Assign links
+    var links = tree.links(nodes);
+
+    // Define link
+    link = link.data(links, function(d) { 
+        return d.source.id + "-" + d.target.id; 
+    });
+
+    // Append links from the parent’s old position.
+    link.enter().insert("path", ".node")
+            .attr("class", "link")
+            .attr("d", diagonal);
+
+    // Link new nodes to new position
+    var trans = svg.transition();
+    trans.selectAll(".link")
+            .attr("d", diagonal);
+    trans.selectAll(".node")
+            .attr("transform", function(d) {
+                d.px = d.x; 
+                d.py = d.y; 
+                return "translate(" + d.x + "," + d.y + ")"; 
+            });
+
 }
 
-var tree= tree();
+// function add_node(d) {
+//     this.on("click", function(d) {
+//         if (d.id != 1) {
+//             var newNode = {"name": "Sub-concepts"};
+//             var p = nodes[0];
+//             if (d.children) {
+//                 d.children.push(newNode);
+//             } else {
+//                 d.children = [newNode];
+//             }
+//             update();
+//         }
+//     });
+// }
+
+// function delete_node(d) {
+//     this.on("click", function(d){
+//         console.log(d);
+//         $('.node[id='+d.id+']').each(function(){
+//             console.log('path#'+$(this).attr("id"));
+//             $('path#'+$(this).attr("id")).fadeOut("fast").remove();
+//             $(this).fadeOut("fast", function(e){
+//                 this.remove();
+//             });
+//             delete_children($(this).attr("id"));
+//         });
+//         update();
+//     });
+// }
+
+// function delete_children(id) {
+//     $('.node[parent='+id+']').each(function(){
+//         $('path#'+$(this).attr("id")).fadeOut("fast").remove();
+//         $(this).fadeOut("fast", function(e){
+//             this.remove();
+//         });
+//         //delete_all_childs($(this).attr("id"));
+//     });
+// }
+
+function make_editable(d, field) {
+    this.on("mouseover", function() {
+        d3.select(this).style("fill", "red");
+    })
+    .on("mouseout", function() {
+        d3.select(this).style("fill", null);
+    })
+    .on("click", function(d) {
+        var p = this.parentNode;
+        // inject a HTML form to edit the content here...
+
+        // bug in the getBBox logic here, but don't know what I've done wrong here;
+        // anyhow, the coordinates are completely off & wrong. :-((
+        var xy = this.getBBox();
+        var p_xy = p.getBBox();
+
+        xy.x = p_xy.x;
+        xy.y = p_xy.y;
+
+        var el = d3.select(this);
+        var p_el = d3.select(p);
+
+        var frm = p_el.append("foreignObject");
+
+        var inp = frm
+                .attr("x", xy.x)
+                .attr("y", xy.y)
+                .attr("width", 300)
+                .attr("height", 25)
+                .append("xhtml:form")
+                .append("input")
+                .attr("value", function() {
+                    // nasty spot to place this call, but here we are sure that the <input> tag is available
+                    // and is handily pointed at by 'this':
+                    this.focus();
+                    return d[field];
+                })
+                .attr("style", "width: 120px;")
+                // make the form go away when you jump out (form looses focus) or hit ENTER:
+                .on("blur", function() {
+                    var txt = inp.node().value;
+                    if(txt !== null && txt !== "")
+                    {
+                        d[field] = txt;
+                        el.text(function(d) { return d[field]; });
+                        // Note to self: frm.remove() will remove the entire <g> group! Remember the D3 selection logic!
+                        //p_el.select("foreignObject").remove();
+                        // Borra el Input al salir
+                        inp.remove();
+                    }
+                })
+                .on("keypress", function() {
+                    // IE fix
+                    if (!d3.event)
+                        d3.event = window.event;
+
+                    var e = d3.event;
+                    if (e.keyCode == 13)
+                    {
+                        if (typeof(e.cancelBubble) !== 'undefined') // IE
+                            e.cancelBubble = true;
+                        if (e.stopPropagation)
+                            e.stopPropagation();
+                        e.preventDefault();
+
+                        var txt = inp.node().value;
+
+                        if(txt !== null && txt !== "")
+                        {
+                            d[field] = txt;
+                            el.text(function(d) { return d[field]; });
+
+                            // odd. Should work in Safari, but the debugger crashes on this instead.
+                            // Anyway, it SHOULD be here and it doesn't hurt otherwise.
+                            //p_el.select("foreignObject").remove();
+                            // Borra el Input al salir
+                            frm.remove();
+                        }
+                    }
+                });
+    });
+}
