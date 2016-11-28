@@ -46,4 +46,22 @@ $(document).ready(function() {
 			$(text).css({ 'font-style': 'italic' })
 		}
 	})
+
+	// Text color
+	$('#text-color').colorpicker().on('changeColor', function(e) {
+		var text = getText();
+		if (!text) {
+			return;
+		}
+		$(text).css({ 'fill': e.color.toHex() })
+	});
+
+	// Node color
+	$('#node-color').colorpicker().on('changeColor', function(e) {
+		var node = $('.main[selected*="selected"]');
+		if (!node) {
+			return;
+		}
+		$(node).css({ 'fill': e.color.toHex() })
+	});
 });

@@ -1,0 +1,22 @@
+<form name="editForm" ng-submit="editNode(editForm, $event)">
+
+    <div class="details panel panel-info">
+
+        <div class="panel-heading">
+            <input type="text" ng-model="node.name" class="form-control"/>
+        </div>
+
+        <div class="panel-body">
+            <div class="comments">
+                <h5>Comments</h5>
+                <textarea ng-model="node.comments" class="form-control" init-focus></textarea>
+            </div>
+        </div>
+
+        <div class="panel-action">
+            <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Save</button>
+            <button type="button" ng-click="leaveEdit()" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+        </div>
+
+    </div>
+</form>

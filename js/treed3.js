@@ -1,9 +1,9 @@
 var margin = {top: 50, right: 120, bottom: 20, left: 500},
     width = 100,
-    height = 500 - margin.top - margin.bottom,
+    height = 700 - margin.top - margin.bottom,
     i = 0;
 
-// Set non-fixed size 
+// Set non-fixed tree size so elements don't get overlapped
 var tree = d3.layout.tree().nodeSize([70, 70]);
 
 var root = {
@@ -69,6 +69,7 @@ function reset() {
 
 update(root);
 
+// Main function for drawing 
 function update(root) {
 
     // Set duration for transition
@@ -97,6 +98,14 @@ function update(root) {
         .attr("class", "node")
         .attr("transform", function(d) {
             return "translate(" + d.x + "," + d.y + ")";  
+        })
+        .attr("id", function(d) {
+            return d.id;
+        })
+        .on('mouseover', function(d) {
+                document.querySelector('#panel').dispatchEvent(
+                    new CustomEvent("hoverNode", { "detail": d.id })
+                );
         });
 
     // Add label text
@@ -224,7 +233,7 @@ function update(root) {
                 }
                 return p; 
             } else {
-                for(var i = 0; i < p.children.length; i++) {
+                for (var i = 0; i < p.children.length; i++) {
                     p.children[i].id == null; 
                     deleteNode(p.children[i]); 
                 }
@@ -243,7 +252,7 @@ function update(root) {
         d.id = addedId;
         if (p.children) { 
             p.children.push(d); 
-        } else{ 
+        } else { 
             p.children = [d]; 
         } 
         d.px = p.x;
@@ -260,6 +269,8 @@ function update(root) {
     .duration(duration2).attr("d", diagonal); 
 }
 
+
+// Highlight text when selected
 function edit(d) {
     this.on("click", function(d) {
         // Unhighlight all other nodes
@@ -271,7 +282,8 @@ function edit(d) {
     })
 }
 
-
+// Make text editable
+// https://gist.github.com/GerHobbelt/2653660
 function make_editable(d, field) {
     this.on("mouseover", function() {
         d3.select(this).style("fill", "red");

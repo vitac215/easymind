@@ -35,3 +35,10 @@ text {
   left: 20px;
   top: 70px;
 }
+
+.details {
+    position: fixed;
+    top: 60px;
+    right: 10px;
+    width: 280px;
+}
