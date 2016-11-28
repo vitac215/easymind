@@ -97,7 +97,7 @@ function update(root) {
         .attr("class", "node")
         .attr("transform", function(d) {
             return "translate(" + d.x + "," + d.y + ")";  
-        })
+        });
 
     // Add label text
     nodesEnter.append('g')
@@ -120,7 +120,8 @@ function update(root) {
     // Add main circle
     var mainCircles = circlesGroup.append("circle")
         .attr('class','main')
-        .attr("r", 15);
+        .attr("r", 15)
+        .call(edit);
 
     // Add delete button (red)
     circlesGroup.append("circle")
@@ -128,7 +129,7 @@ function update(root) {
         .attr('cx', 0)
         .attr('cy', 0)
         .attr('fill','#801f0c')
-        .attr('opacity',0.8)
+        .attr('opacity', 0.8)
         .attr("r", 0);
 
     // Add add button (green)
@@ -137,7 +138,7 @@ function update(root) {
         .attr('cx', 0)
         .attr('cy', 0)
         .attr('fill','#1f800c')
-        .attr('opacity',0.8)
+        .attr('opacity', 0.8)
         .attr("r", 0);  
 
     // Hover onto the node, display the add and delete button
@@ -257,6 +258,17 @@ function update(root) {
 
     link.transition()
     .duration(duration2).attr("d", diagonal); 
+}
+
+function edit(d) {
+    this.on("click", function(d) {
+        // Unhighlight all other nodes
+        d3.selectAll('.main')
+            .style('stroke', 'steelblue')
+        // Highlight the selected node
+        d3.select(this)
+            .style('stroke', '#ffb3b3')
+    })
 }
 
 
