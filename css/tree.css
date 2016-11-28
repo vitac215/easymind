@@ -1,20 +1,31 @@
-.node circle {
-    fill: #fff;
-    stroke: steelblue;
-    stroke-width: 2px;
+.node .main {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+h1 {
+  text-align: center;
+}
+.node .delete {
+  stroke-width: 1.5px;
 }
 
-.node .plus, .node .minus {
-    stroke: none;
-    stroke-width: 0;
-}
-
-.node text { 
-	font: 15px sans-serif; 
+.node {
+  font: 10px sans-serif;
 }
 
 .link {
-    fill: none;
-    stroke: #eaeaea;
-    stroke-width: 2px;
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+svg {
+  margin-left:auto;
+  margin-right:auto; 
+  display:block;
+}
+
+text {
+  font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
