@@ -1,10 +1,10 @@
-var margin = {top: 50, right: 120, bottom: 20, left: 300},
+var margin = {top: 50, right: 120, bottom: 20, left: 500},
     width = 100,
     height = 500 - margin.top - margin.bottom,
     i = 0;
 
-var tree = d3.layout.tree()
-        .size([height, width]);
+// Set non-fixed size 
+var tree = d3.layout.tree().nodeSize([70, 70]);
 
 var root = {
     "name": "Concept",
@@ -13,8 +13,8 @@ var root = {
 
 var nodes = tree(root);
 
-// Check
-var id = ++nodes.length; 
+// Set the initial id
+var id = 2; 
 
 // Set the parent x and y for all nodes, check
 nodes.forEach( function(node) {
@@ -32,21 +32,46 @@ var diagonal = d3.svg.diagonal()
         return [d.x, d.y]; 
     });
 
-var svg = d3.select("body").append("svg")
+// Draggable setting
+var dragmove = d3.behavior.zoom()
+      .scaleExtent([.5, 10])
+      .on("zoom", zoomed)
+      .translate([margin.left, margin.top]);
+
+function zoomed() {
+     svg.attr("transform", "translate("+ (d3.event.translate[0]) + "," + (d3.event.translate[1])  +")scale(" + d3.event.scale + ")");
+}
+
+// Set container and svg canvas
+var container = d3.select("body").append("svg")
         .attr("width", width + "%")
         .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .call(dragmove);
+
+var svg = container.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  // locaiton of initial node
+
 
 var node = svg.selectAll(".node");
 var link = svg.selectAll(".link");
 
+// Reset zoom function
+d3.select("#reset").on("click", reset);
+
+function reset() {
+    svg.transition()
+        .duration(500)
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")" +" scale(1)");
+    dragmove.scale(1);
+    dragmove.translate([margin.left, margin.top]);
+}
+
 
 update(root);
 
-
 function update(root) {
 
+    // Set duration for transition
     var duration1 = 500;
     var duration2 = 1000;
 
@@ -54,10 +79,11 @@ function update(root) {
     var node = svg.selectAll(".node"); 
     var link = svg.selectAll(".link");
 
+    // Compute the new tree layout
     var nodes = tree.nodes(root);
     var links = tree.links(nodes);
 
-    // Define depth and id
+    // Normalize fixed-depth and update the nodes
     node = node.data(nodes, function(d) { 
         d.y = d.depth * 100; 
         return d.id || (d.id = ++i); 
@@ -77,15 +103,15 @@ function update(root) {
     nodesEnter.append('g')
         .attr('class', 'label')
         .append('text')
-        .attr("y", -23)
-        .attr("dy", "0.35em")
-        .attr("text-anchor", "middle")
-        .text(function(d) { 
-            return d.name; 
-        })
-        .call(make_editable, function(d) { 
-            return d.name; 
-        });
+            .attr("y", -23)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "middle")
+            .text(function(d) { 
+                return d.name; 
+            })
+            .call(make_editable, function(d) { 
+                return d.name; 
+            });
 
     // Add circles
     var circlesGroup = nodesEnter.append('g')
@@ -96,6 +122,7 @@ function update(root) {
         .attr('class','main')
         .attr("r", 15);
 
+    // Add delete button (red)
     circlesGroup.append("circle")
         .attr('class','delete')
         .attr('cx', 0)
@@ -104,6 +131,7 @@ function update(root) {
         .attr('opacity',0.8)
         .attr("r", 0);
 
+    // Add add button (green)
     circlesGroup.append("circle")
         .attr('class','add')
         .attr('cx', 0)
@@ -112,7 +140,7 @@ function update(root) {
         .attr('opacity',0.8)
         .attr("r", 0);  
 
-    // Hover onto the node, display add and delete buttons
+    // Hover onto the node, display the add and delete button
     circlesGroup.on("mouseenter", function() {
         var elem = this.__data__; 
         elem1 = d3.selectAll(".delete").filter(function(d, i) { 
@@ -137,7 +165,7 @@ function update(root) {
     }); 
 
     circlesGroup.on("mouseleave", function() {
-        var elem = this.__data__; 
+        var elem = this.__data__;   // When data is assigned to an element, it is stored in the property __data__
         elem1 = d3.selectAll(".delete").filter(function(d,i) { 
             return elem.id == d.id ? this : null;
         });
@@ -176,6 +204,7 @@ function update(root) {
             d.py = d.y; 
             return "translate(" + d.x + "," + d.y + ")"; 
         });
+
 
     // Delete node
     node.select('.delete').on('click', function() {
