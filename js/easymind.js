@@ -1,8 +1,5 @@
 $(document).ready(function() {
 
-	// // Hide the first node's delete button
-	// $('.node > .circles:nth-child(1) > .delete').css("display", "none");
-
 	$(document).on('click', '.main', function() {
 		// Unselect all others
 		$('.main').attr("selected", false);
@@ -23,15 +20,6 @@ $(document).ready(function() {
 
 	// Text bold
 	$('#text-bold').click( function() {
-		// var text = getText();
-		// if (!text) {
-		// 	return;
-		// }
-		// if ($(text).css('font-weight') == "bold") {
-		// 	$(text).css({ 'font-weight': 'normal' });
-		// } else {
-		// 	$(text).css({ 'font-weight': 'bold' });
-		// }
 		var text = getText();
 		if (!text) {
 			return;
@@ -49,15 +37,6 @@ $(document).ready(function() {
 
 	// Text italic
 	$('#text-italic').click( function() {
-		// var text = getText();
-		// if (!text) {
-		// 	return;
-		// }
-		// if ($(text).css('font-style') == 'italic') {
-		// 	$(text).css({ 'font-style': 'normal' })
-		// } else {
-		// 	$(text).css({ 'font-style': 'italic' });
-		// }
 		var text = getText();
 		if (!text) {
 			return;
@@ -75,16 +54,10 @@ $(document).ready(function() {
 
 	// Text color
 	$('#text-color').colorpicker().on('changeColor', function(e) {
-		// var text = getText();
-		// if (!text) {
-		// 	return;
-		// }
-		// $(text).css({ 'fill': e.color.toHex() });
 		var text = getText();
 		if (!text) {
 			return;
 		}
-		// $(text).css({ 'fill': e.color.toHex() });
 		text.style('fill', function(d) {
 			d.text_color = e.color.toHex();
 			return d.text_color;
@@ -93,11 +66,6 @@ $(document).ready(function() {
 
 	// Node color
 	$('#node-color').colorpicker().on('changeColor', function(e) {
-		// var node = $('.main[selected*="selected"]');
-		// if (!node) {
-		// 	return;
-		// }
-		// $(node).css({ 'fill': e.color.toHex() });
 		var node = d3.select('.main[selected*="selected"]');
 		if (!node) {
 			return;

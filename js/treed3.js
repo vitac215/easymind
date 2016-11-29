@@ -89,7 +89,9 @@ function update(root, condition) {
     // || d3.selectAll('.main')[0].length == 1
     if (condition == true) {
         // Sort the array to find the largest text width
-        textWidthArray.sort();
+        textWidthArray.sort(function(a,b) {
+            return a - b;
+        });
         var largest = textWidthArray.slice(-1)[0];
         // Clear the tree for reconstructing
         svg.selectAll("*").remove();
@@ -182,7 +184,24 @@ function update(root, condition) {
                 return d.name; 
             })
             .attr("font-size", "15px")
-            .attr("font-weight", "normal")
+            .attr("font-weight", function(d) {
+                if (d.text_bold == true) {
+                    return "bold";
+                } else {
+                    return "normal";
+                }
+            })
+            .attr("font-style", function(d) {
+                if (d.text_italic == true) {
+                    return "italic";
+                } else {
+                    return "normal";
+                }
+            })
+            .attr("fill", function(d) {
+                console.log(d);
+                return d.text_color;
+            })
             .call(make_editable, function(d) { 
                 return d.name; 
             });
@@ -332,7 +351,7 @@ function update(root, condition) {
         d.color = "#fff";
         d.text_bold = false;
         d.text_italic = false;
-        d.text_color = "#fff";
+        d.text_color = "black";
         d3.event.preventDefault();
 
         textWidthArray.push(d.width);
@@ -353,17 +372,17 @@ function updateNodeWidth(d) {
     var textNode = d3.select('[id="' + d.id + '"]').select('.label').select('text').node();
     var textWidth = textNode.getBBox().width;
     // If new text width > the node's original width, update the node's width
-    if (textWidth + 40 >= d.width) {
+    // // if (textWidth + 40 >= d.width) {
+    // if (textWidth >= d.width) {
         removeWidth(d.width);
         d.width = textWidth + 40;
         // Add the new width to the text width array
         textWidthArray.push(d.width);
-    } else {
-        // Back to the original width
-        removeWidth(d.width);
-        d.width = w;
-        textWidthArray.push(w);
-    }
+    // } else {
+    //     removeWidth(d.width);
+    //     d.width = textWidth + 40;
+    //     textWidthArray.push(d.width);
+    // }
 }
 
 // Remove a specific text width from textWidthArray
@@ -441,23 +460,25 @@ function make_editable(d, field) {
 
                     d.name = txt;
 
-                    // If d is root
-                    if (d.id == 1) {
-                        root = d;
-                    }
+                    if (txt !== null && txt !== "") {
+                        // If d is root
+                        if (d.id == 1) {
+                            root = d;
+                        }
 
-                    // Remove the whole form box
-                    p_el.selectAll("foreignObject").remove();
+                        // Remove the whole form box
+                        p_el.selectAll("foreignObject").remove();
 
-                    if (textChanged == true) {
-                        // Update tree, wait until the text is updated
-                        update(root, true);
+                        if (textChanged == true) {
+                            // Update tree, wait until the text is updated
+                            update(root, true);
 
-                        // Update node's width
-                        updateNodeWidth(d);
+                            // Update node's width
+                            updateNodeWidth(d);
 
-                        // Update tree
-                        update(root, true);
+                            // Update tree
+                            update(root, true);
+                        }
                     }
 
                 })
