@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
-	// Hide the first node's delete button
-	$('.node > .circles:nth-child(2) > .delete').css("display", "none");
+	// // Hide the first node's delete button
+	// $('.node > .circles:nth-child(1) > .delete').css("display", "none");
 
 	$(document).on('click', '.main', function() {
 		// Unselect all others

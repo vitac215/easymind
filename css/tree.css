@@ -26,9 +26,9 @@ svg {
   display:block;
 }
 
-text {
-  font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
+// text {
+//   font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+// }
 
 #reset {
   position: absolute;
