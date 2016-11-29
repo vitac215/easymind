@@ -14,7 +14,11 @@ var root = {
     "id": 1,
     "x": 0,
     "y": 0,
-    "width": w*1.3
+    "width": w*1.3,
+    "color": "#fff",
+    "text_bold": false,
+    "text_italic": false,
+    "text_color": "black"
     };
 
 var nodes = tree(root);
@@ -81,13 +85,11 @@ update(root, false);
 
 // Main function for drawing 
 function update(root, condition) {
-
     // If text is being updated, reconstruct the tree so node width can be updated
     // || d3.selectAll('.main')[0].length == 1
     if (condition == true) {
         // Sort the array to find the largest text width
         textWidthArray.sort();
-        console.log(textWidthArray);
         var largest = textWidthArray.slice(-1)[0];
         // Clear the tree for reconstructing
         svg.selectAll("*").remove();
@@ -148,6 +150,9 @@ function update(root, condition) {
         .attr("height", h)
         .attr("rx", rx)
         .attr("ry", ry)
+        .style('fill', function(d) {
+            return d.color;
+        })
         .on("click", select_highlight);
 
     // Add delete button (red)
@@ -193,7 +198,23 @@ function update(root, condition) {
         .attr("ry", ry)
     rootNode.select('text')
         .attr("font-size", "20px")
-        .attr("font-weight", "normal")
+        .attr("font-weight", function(d) {
+            if (d.text_bold == true) {
+                return "bold";
+            } else {
+                return "normal";
+            }
+        })
+        .attr("font-style", function(d) {
+            if (d.text_italic == true) {
+                return "italic";
+            } else {
+                return "normal";
+            }
+        })
+        .attr("fill", function(d) {
+            return d.text_color;
+        })
         .text(function(d) {
             return d.name;
         });
@@ -276,7 +297,7 @@ function update(root, condition) {
             update(root, true);
         }
         function deleteNode(p) {
-            textWidthArray.pop(p.width);
+            removeWidth(p.width);
             if (!p.children) {
                 if (p.id) { 
                     p.id = null; 
@@ -298,7 +319,7 @@ function update(root, condition) {
     node.select('.add').on('click', function() { 
         var p = this.__data__;
         var addedId = id++; 
-        var d = {name: 'Sub' + addedId};  
+        var d = {name: 'Sub' + (addedId - 1)};  
         d.id = addedId;
         if (p.children) { 
             p.children.push(d); 
@@ -308,6 +329,10 @@ function update(root, condition) {
         d.px = p.x;
         d.py = p.x;
         d.width = w;
+        d.color = "#fff";
+        d.text_bold = false;
+        d.text_italic = false;
+        d.text_color = "#fff";
         d3.event.preventDefault();
 
         textWidthArray.push(d.width);
@@ -329,10 +354,23 @@ function updateNodeWidth(d) {
     var textWidth = textNode.getBBox().width;
     // If new text width > the node's original width, update the node's width
     if (textWidth + 40 >= d.width) {
-        textWidthArray.pop(d.width);
+        removeWidth(d.width);
         d.width = textWidth + 40;
         // Add the new width to the text width array
         textWidthArray.push(d.width);
+    } else {
+        // Back to the original width
+        removeWidth(d.width);
+        d.width = w;
+        textWidthArray.push(w);
+    }
+}
+
+// Remove a specific text width from textWidthArray
+function removeWidth(width) {
+    var i = textWidthArray.indexOf(width);
+    if (i != -1) {
+        textWidthArray.splice(i, 1);
     }
 }
 
@@ -395,23 +433,33 @@ function make_editable(d, field) {
                 .on("blur", function() {
                     var txt = inp.node().value;
                     d[field] = txt;
+
+                    var textChanged = true;
+                    if (d.name == txt) {
+                        textChanged = false;
+                    }
+
                     d.name = txt;
 
                     // If d is root
                     if (d.id == 1) {
                         root = d;
                     }
+
                     // Remove the whole form box
                     p_el.selectAll("foreignObject").remove();
 
-                    // Update tree, wait until the text is updated
-                    update(root, true);
+                    if (textChanged == true) {
+                        // Update tree, wait until the text is updated
+                        update(root, true);
 
-                    // Update node's width
-                    updateNodeWidth(d);
+                        // Update node's width
+                        updateNodeWidth(d);
 
-                    // Update tree
-                    update(root, true);
+                        // Update tree
+                        update(root, true);
+                    }
+
                 })
                 .on("keypress", function() {
                     // IE fix
@@ -428,6 +476,12 @@ function make_editable(d, field) {
                         e.preventDefault();
 
                         var txt = inp.node().value;
+
+                        var textChanged = true;
+                        if (d.name == txt) {
+                            textChanged = false;
+                        }
+
                         d.name = txt;
 
                         if (txt !== null && txt !== "") {
@@ -436,18 +490,21 @@ function make_editable(d, field) {
                                 return d[field]; 
                             });
 
-                            // if (p_el.selectAll("foreignObject").parentNode) {
-                            //     p_el.selectAll("foreignObject").remove();
-                            // }
+                            if (p_el.selectAll("foreignObject").parentNode) {
+                                p_el.selectAll("foreignObject").remove();
+                            }
 
-                            // Update tree, wait until the text is updated
-                            update(root, true);
+                            if (textChanged == true) {
+                                // Update tree, wait until the text is updated
+                                update(root, true);
 
-                            // Update node's width
-                            updateNodeWidth(d);
+                                // Update node's width
+                                updateNodeWidth(d);
 
-                            // Update tree
-                            update(root, true);
+                                // Update tree
+                                update(root, true);
+                            }
+
                         }
                     }
                 });
