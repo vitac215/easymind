@@ -450,47 +450,47 @@ function make_editable(d, field) {
                 .attr("y", -10)
                 .attr("width", 300)
                 .attr("height", 25)
-                .append("xhtml:form")
+                .append("xhtml:div")
                 .append("input")
                 .attr("value", function() {
                     this.focus();
                     return d.name;
                 })
-                .attr("style", "width: " + d.width*0.9 + "px ; height: 20px; color: black; font-size: 15px; font-weight: normal;")
+                .attr("style", "width: " + d.width*0.9 + "px ; height: 20px; color: black; font-size: 15px; font-weight: normal; overflow: hidden;")
                 // Remove the form when you jump out (form looses focus) or hit ENTER:
-                .on("blur", function() {
-                    var txt = inp.node().value;
-                    d[field] = txt;
+                // .on("blur", function() {
+                //     var txt = inp.node().value;
+                //     d[field] = txt;
 
-                    var textChanged = true;
-                    if (d.name == txt) {
-                        textChanged = false;
-                    }
+                //     var textChanged = true;
+                //     if (d.name == txt) {
+                //         textChanged = false;
+                //     }
 
-                    d.name = txt;
+                //     d.name = txt;
 
-                    if (txt !== null && txt !== "") {
-                        // If d is root
-                        if (d.id == 1) {
-                            root = d;
-                        }
+                //     if (txt !== null && txt !== "") {
+                //         // If d is root
+                //         if (d.id == 1) {
+                //             root = d;
+                //         }
 
-                        // Remove the whole form box
-                        p_el.selectAll("foreignObject").remove();
+                //         // Remove the whole form box
+                //         p_el.selectAll("foreignObject").remove();
 
-                        if (textChanged == true) {
-                            // Update tree, wait until the text is updated
-                            update(root, true);
+                //         if (textChanged == true) {
+                //             // Update tree, wait until the text is updated
+                //             update(root, true);
 
-                            // Update node's width
-                            updateNodeWidth(d);
+                //             // Update node's width
+                //             updateNodeWidth(d);
 
-                            // Update tree
-                            update(root, true);
-                        }
-                    }
+                //             // Update tree
+                //             update(root, true);
+                //         }
+                //     }
 
-                })
+                // })
                 .on("keypress", function() {
                     // IE fix
                     if (!d3.event) {
