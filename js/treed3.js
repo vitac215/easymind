@@ -72,7 +72,6 @@ var container = d3.select("body").append("svg")
 var svg = container.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  // locaiton of initial node
 
-
 var node = svg.selectAll(".node");
 var link = svg.selectAll(".link");
 
@@ -505,8 +504,6 @@ function make_editable(d, field) {
         d3.selectAll("foreignObject").remove();
 
         var xy = this.getBBox();
-        console.log(this);
-        console.log(xy);
 
         var el = d3.select(this);
 
@@ -523,12 +520,12 @@ function make_editable(d, field) {
                 .attr("x", function() {
                     var x;
                     // Apply special treatment to the first node's position x
-                    // 20 is the total margin set between text and the node
+                    // 40 is the total margin set between text and the node
                     if (d.id == 1) {
-                        x = ((xy.x + d.px - 20/2)*t_scale + t_x);
+                        x = ((xy.x + d.px - 40/2 + 9)*t_scale + t_x);
                     // Normal treatment of position x
                     } else {
-                        x = ((xy.x + d.px - 20/2)*t_scale + t_x);
+                        x = ((xy.x + d.px - 40/2 + 9)*t_scale + t_x);
                     }
                     return x;
                 })
