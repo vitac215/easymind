@@ -114,7 +114,7 @@ function update(root, condition) {
 
     // Normalize fixed-depth and update the nodes
     node = node.data(nodes, function(d) { 
-        d.y = d.depth * 100; 
+        d.y = d.depth * 80; 
         return d.id || (d.id = ++i); 
     });
     link = link.data(links, function(d) { 
@@ -183,7 +183,7 @@ function update(root, condition) {
             .text(function(d) { 
                 return d.name; 
             })
-            .attr("font-size", "15px")
+            .attr("font-size", "17px")
             .attr("font-weight", function(d) {
                 if (d.text_bold == true) {
                     return "bold";
@@ -199,7 +199,6 @@ function update(root, condition) {
                 }
             })
             .attr("fill", function(d) {
-                console.log(d);
                 return d.text_color;
             })
             .call(make_editable, function(d) { 
@@ -371,18 +370,12 @@ function updateNodeWidth(d) {
     // Get the current node's new text width
     var textNode = d3.select('[id="' + d.id + '"]').select('.label').select('text').node();
     var textWidth = textNode.getBBox().width;
-    // If new text width > the node's original width, update the node's width
-    // // if (textWidth + 40 >= d.width) {
-    // if (textWidth >= d.width) {
-        removeWidth(d.width);
-        d.width = textWidth + 40;
-        // Add the new width to the text width array
-        textWidthArray.push(d.width);
-    // } else {
-    //     removeWidth(d.width);
-    //     d.width = textWidth + 40;
-    //     textWidthArray.push(d.width);
-    // }
+
+    removeWidth(d.width);
+    d.width = textWidth + 40;
+
+    // Update the text width to the text width array
+    textWidthArray.push(d.width);
 }
 
 // Remove a specific text width from textWidthArray
@@ -406,13 +399,8 @@ function select_highlight(d) {
 // Adpted from: https://gist.github.com/GerHobbelt/2653660
 function make_editable(d, field) {
     this
-    .on("mouseover", function() {
-        d3.select(this).style("fill", "red");
-    })
-    .on("mouseout", function() {
-        d3.select(this).style("fill", null);
-    })
     .on("click", function(d) {
+        console.log(d3.event);
         // Highlight the selected node
         select_highlight(d);
 
@@ -435,8 +423,6 @@ function make_editable(d, field) {
         var frm = p_el.append("foreignObject");
 
         var inp = frm
-                // .attr("x", xy.x)
-                // .attr("y", xy.y)
                 .attr("x", -150)
                 .attr("y", -10)
                 .attr("width", 300)

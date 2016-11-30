@@ -1,44 +1,47 @@
-.node .main {
-  fill: #fff;
-  stroke: steelblue;
-  stroke-width: 1.5px;
+body {
+	background-color: #fffdee;
 }
+
+a:hover {
+	cursor: pointer;
+}
+
 h1 {
-  text-align: center;
-}
-.node .delete {
-  stroke-width: 1.5px;
-}
-
-.node {
-  font: 10px sans-serif;
-}
-
-.link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1.5px;
+	text-align: center;
 }
 
 svg {
-  margin-left:auto;
-  margin-right:auto; 
-  display:block;
+	margin-left:auto;
+	margin-right:auto; 
+	display:block;
 }
 
-// text {
-//   font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
-// }
+.node .main {
+	fill: #fff;
+	stroke: steelblue;
+	stroke-width: 1.5px;
+}
+
+.node .delete {
+ 	stroke-width: 1.5px;
+}
+
+.node {
+ 	font: 10px sans-serif;
+}
+
+.link {
+	fill: none;
+	stroke: #ccc;
+	stroke-width: 1.5px;
+}
 
 #reset {
-  position: absolute;
-  left: 20px;
-  top: 70px;
+	position: absolute;
+	left: 20px;
+	top: 70px;
 }
 
-.details {
-    position: fixed;
-    top: 60px;
-    right: 10px;
-    width: 280px;
+.fa-font, .fa-square {
+	color: red;
 }

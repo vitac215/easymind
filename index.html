@@ -5,6 +5,7 @@
         <meta charset="utf-8">
         <link rel="stylesheet" href="css/vendor/bootstrap.min.css" />
         <link rel="stylesheet" href="css/vendor/bootstrap-colorpicker.css" />
+        <script src="https://use.fontawesome.com/d958128dfc.js"></script>
         <link rel="stylesheet" href="css/tree.css" />
     </head>
     <body>
@@ -25,17 +26,20 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
               <ul class="nav navbar-nav">
-                <li id="text-bold"><a>Bold</a></li>
-                <li id="text-italic"><a>Italic</a></li>
-                <li id="text-color"><a>Text Color</a></li>
-                <li id="node-color"><a>Node Color</a></li>
+                <li id="text-bold"><a><i class="fa fa-bold" aria-hidden="true"></i></a></li>
+                <li id="text-italic"><a><i class="fa fa-italic" aria-hidden="true"></i></a></li>
+                <li id="text-color"><a><i class="fa fa-font" aria-hidden="true"></i></a></li>
+                <li id="node-color"><a><i class="fa fa-square" aria-hidden="true"></i></a></li>
+                <li><a id="save">Save</a></li>
               </ul>
             </div><!-- /.navbar-collapse -->
         </nav>
         
         <button id="reset" type="button" class="btn btn-default">Reset Zoom</button>
+        <div id="svgdataurl"></div>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
         <script src="http://d3js.org/d3.v3.min.js"></script>
         <script src="js/services/bootstrap-colorpicker.js"></script>
         <script src="js/treed3.js"></script>
