@@ -16,6 +16,10 @@ svg {
 	display:block;
 }
 
+.navbar-header {
+	margin-right: 20px;
+}
+
 .node .main {
 	fill: #fff;
 	stroke: steelblue;

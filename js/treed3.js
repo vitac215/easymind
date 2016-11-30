@@ -447,17 +447,9 @@ function make_editable(d, field) {
             d3.selectAll("foreignObject").remove();
         }
 
-
-        var p = this.parentNode.parentNode.parentNode;
-
         var xy = this.getBBox();
-        // var p_xy = p.getBBox();
-
-        // xy.x = p_xy.x;
-        // xy.y = p_xy.y;
 
         var el = d3.select(this);
-        // var p_el = d3.select(p);
 
         // Get the transformation data
         var str = svg.attr("transform");
@@ -466,22 +458,15 @@ function make_editable(d, field) {
         var t_y = t_array[1];
         var t_scale = t_array[2];
 
-        // var frm = p_el.append("foreignObject");
         var frm = d3.select('svg').append("foreignObject");
 
         var inp = frm
-                // .attr("transform", "translate(" + d.x + "," + d.y + ")")
-                // .attr("transform", "translate("+ (t_array[0]) + "," + (t_array[1])  +")scale(" + t_array[2] + ")")
-                // .attr("x", 150)
-                // .attr("y", 10)
-                // .attr("x", xy.x)
-                // .attr("y", xy.y)
-                // .attr("x", xy.x + d.px - d.width/4)
-                // .attr("y", xy.y + d.py)
                 .attr("x", function() {
                     var x;
+                    // Apply special treatment to the first node's position x
                     if (d.id == 1) {
                         x = ((xy.x + d.px - d.width/6)*t_scale + t_x);
+                    // Normal treatment of position x
                     } else {
                         x = ((xy.x + d.px - d.width/4)*t_scale + t_x);
                     }
@@ -576,7 +561,7 @@ function make_editable(d, field) {
                             }
 
                         }
-                    }
+                    } // end of keypress
                 });
     });
 }
