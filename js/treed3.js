@@ -295,14 +295,12 @@ function update(root, condition) {
           .attr("r", 0); 
     }); 
 
-
     // Set links
     // Add links from the parent's old position
     var linkEnter = link.enter()
       .insert("path", '.node')
       .attr("class", "link")
       .attr("d", diagonal);
-
     // Link new nodes to new position
     var trans = svg.transition().duration(duration2);
     trans.selectAll(".link")
@@ -544,45 +542,11 @@ function make_editable(d, field) {
                     return d.name;
                 })
                 .attr("style", "width: " + d.width*0.9*t_scale + "px; height: " + (20*t_scale) + "px; min-height: 15px; color: black; font-size: " + (15*t_scale) +"px; font-weight: normal; overflow: hidden;")
-                // // Remove the form when you jump out (form looses focus) or hit ENTER:
-                // .on("blur", function() {
-                //     var txt = inp.node().value;
-                //     d[field] = txt;
-
-                //     var textChanged = true;
-                //     if (d.name == txt) {
-                //         textChanged = false;
-                //     }
-
-                //     d.name = txt;
-
-                //     if (txt !== null && txt !== "") {
-                //         // If d is root
-                //         if (d.id == 1) {
-                //             root = d;
-                //         }
-
-                //         // Remove the whole form box
-                //         d3.selectAll("foreignObject").remove();
-
-                //         if (textChanged == true) {
-                //             // Update tree, wait until the text is updated
-                //             update(root, true);
-
-                //             // Update node's width
-                //             updateNodeWidth(d);
-
-                //             // Update tree
-                //             update(root, true);
-                //         }
-                //     }
-                // })
                 .on("keypress", function() {
                     // IE fix
                     if (!d3.event) {
                         d3.event = window.event;
                     }
-
                     var e = d3.event;
                     if (e.keyCode == 13) {
                         if (typeof(e.cancelBubble) !== 'undefined') // IE
@@ -617,14 +581,11 @@ function make_editable(d, field) {
                             if (textChanged == true) {
                                 // Update tree, wait until the text is updated
                                 update(root, true);
-
                                 // Update node's width
                                 updateNodeWidth(d);
-
                                 // Update tree
                                 update(root, true);
                             }
-
                         }
                     } // end of keypress
                 });
