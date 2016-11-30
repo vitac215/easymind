@@ -45,10 +45,10 @@ var diagonal = d3.svg.diagonal()
 // Draggable setting
 var dragmove = d3.behavior.zoom()
       .scaleExtent([.5, 10])
-      .on("zoom", zoomed)
+      .on("zoom", zoom)
       .translate([margin.left, margin.top]);
 
-function zoomed() {
+function zoom() {
      svg.attr("transform", "translate("+ (d3.event.translate[0]) + "," + (d3.event.translate[1])  +")scale(" + d3.event.scale + ")");
 }
 
@@ -56,7 +56,8 @@ function zoomed() {
 var container = d3.select("body").append("svg")
         .attr("width", width + "%")
         .attr("height", height + margin.top + margin.bottom)
-        .call(dragmove);
+        .call(dragmove)
+        .on("dblclick.zoom", null);
 
 var svg = container.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  // locaiton of initial node
