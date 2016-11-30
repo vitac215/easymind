@@ -92,42 +92,64 @@ $(document).ready(function() {
 	// 	downloadLink.click();
 	// 	document.body.removeChild(downloadLink);
 	// });
-	d3.select("#save").on("click", function(){
-	var html = d3.select("svg")
-	    .attr("version", 1.1)
-	    .attr("xmlns", "http://www.w3.org/2000/svg")
-	    .node().parentNode.innerHTML;
-	    // .node().innerHTML;
 
-	// console.log(html);
-	var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
-	var img = '<img src="'+imgsrc+'">'; 
-	d3.select("#svgdataurl").html(img);
+	$('#save').click( function(e) {
+		e.preventDefault(); 
 
+		var doctype = '<?xml version="1.0" standalone="no"?>'
+		  + '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
 
-	var canvas = document.createElement("canvas"),
-		context = canvas.getContext("2d");
+		var source = (new XMLSerializer()).serializeToString(d3.select('svg').node());
+		var blob = new Blob([ doctype + source], { type: 'image/svg+xml;charset=utf-8' });
+		var url = window.URL.createObjectURL(blob);
 
-	var image = new Image;
-	image.src = imgsrc;
+		console.log(url);
 
-	console.log(image);
-
-	image.onload = function() {
-		context.drawImage(image, 0, 0);
-
-		var canvasdata = canvas.toDataURL("image/png");
-
-		console.log(canvasdata);
-
-		var pngimg = '<img src="'+canvasdata+'">'; 
-		d3.select("#pngdataurl").html(pngimg);
-
-		var a = document.createElement("a");
-		a.download = "sample.png";
-		a.href = canvasdata;
-		a.click();
-	};
-
+		var downloadLink = document.createElement("a");
+		downloadLink.href = url;
+		downloadLink.download = "output.png";
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
 	});
+
+	// d3.select("#save").on("click", function(){
+	// 	var html = d3.select("svg")
+	// 	    .attr("version", 1.1)
+	// 	    .attr("xmlns", "http://www.w3.org/2000/svg")
+	// 	    // .node().parentNode.innerHTML;
+	// 	    .node().innerHTML;
+
+	// 	// console.log(html);
+	// 	html += '<?xml-stylesheet href="css/tree.css" type="text/css"?>';
+	// 	var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+	// 	var img = '<img src="'+imgsrc+'">'; 
+	// 	d3.select("#svgdataurl").html(img);
+
+
+	// 	var canvas = document.createElement("canvas"),
+	// 		context = canvas.getContext("2d");
+
+	// 	var image = new Image;
+	// 	image.src = imgsrc;
+
+	// 	console.log(image);
+
+	// 	image.onload = function() {
+	// 		context.drawImage(image, 0, 0);
+
+	// 		var canvasdata = canvas.toDataURL("image/png");
+
+	// 		console.log(canvasdata);
+
+	// 		var pngimg = '<img src="'+canvasdata+'">'; 
+	// 		d3.select("#pngdataurl").html(pngimg);
+
+	// 		var a = document.createElement("a");
+	// 		a.download = "sample.png";
+	// 		a.href = canvasdata;
+	// 		a.click();
+	// 	};
+
+	// });
 });
