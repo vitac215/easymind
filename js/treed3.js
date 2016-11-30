@@ -86,7 +86,6 @@ update(root, false);
 // Main function for drawing 
 function update(root, condition) {
     // If text is being updated, reconstruct the tree so node width can be updated
-    // || d3.selectAll('.main')[0].length == 1
     if (condition == true) {
         // Sort the array to find the largest text width
         textWidthArray.sort(function(a,b) {
@@ -303,59 +302,14 @@ function update(root, condition) {
             return "translate(" + d.x + "," + d.y + ")"; 
         });
 
-
     // Delete node
     node.select('.delete').on('click', function() {
-        var p = this.__data__; 
-        if(p.id != 1) {
-            deleteNode(p);
-            var childArray = p.parent.children;
-            childArray = childArray.splice(childArray.indexOf(p), 1);
-
-            update(root, true);
-        }
-        function deleteNode(p) {
-            removeWidth(p.width);
-            if (!p.children) {
-                if (p.id) { 
-                    p.id = null; 
-                }
-                return p; 
-            } else {
-                for (var i = 0; i < p.children.length; i++) {
-                    p.children[i].id == null; 
-                    deleteNode(p.children[i]); 
-                }
-                p.children = null;
-                return p; 
-            }
-        }
-    }); 
-
+        deleteNode(this);
+    });
 
     // Add node
     node.select('.add').on('click', function() { 
-        var p = this.__data__;
-        var addedId = id++; 
-        var d = {name: 'Sub' + (addedId - 1)};  
-        d.id = addedId;
-        if (p.children) { 
-            p.children.push(d); 
-        } else { 
-            p.children = [d]; 
-        } 
-        d.px = p.x;
-        d.py = p.x;
-        d.width = w;
-        d.color = "#fff";
-        d.text_bold = false;
-        d.text_italic = false;
-        d.text_color = "black";
-        d3.event.preventDefault();
-
-        textWidthArray.push(d.width);
-
-        update(root, false);
+        addNode(this);
     });
 
     node.exit().remove(); 
@@ -363,6 +317,76 @@ function update(root, condition) {
 
     link.transition()
     .duration(duration2).attr("d", diagonal); 
+} // end of update()
+
+
+// Add keyboard support to delete node
+d3.select('body')
+    .on("keydown", function() {
+        var e = d3.event;
+        if (e.keyCode == 46 || e.keyCode == 8) {
+            // Get the selected node
+            var node = d3.select('.main[selected*="selected"]')[0][0];
+            if (!node) {
+                return;
+            }
+            deleteNode(node);
+        }
+    });
+
+// Delete node and its children
+function deleteNode(thisObj) {
+    console.log(thisObj);
+    // Get the node that the delete button is bind to
+    var p = thisObj.__data__; 
+    if(p.id != 1) {
+        deleteChildNode(p);
+        var childArray = p.parent.children;
+        childArray = childArray.splice(childArray.indexOf(p), 1);
+
+        update(root, true);
+    }
+    function deleteChildNode(p) {
+        removeWidth(p.width);
+        if (!p.children) {
+            if (p.id) { 
+                p.id = null; 
+            }
+            return p; 
+        } else {
+            for (var i = 0; i < p.children.length; i++) {
+                p.children[i].id == null; 
+                deleteChildNode(p.children[i]); 
+            }
+            p.children = null;
+            return p; 
+        }
+    }
+}; 
+
+// Add a new node
+function addNode(thisObj) {
+    var p = thisObj.__data__;
+    var addedId = id++; 
+    var d = {name: 'Sub' + (addedId - 1)};  
+    d.id = addedId;
+    if (p.children) { 
+        p.children.push(d); 
+    } else { 
+        p.children = [d]; 
+    } 
+    d.px = p.x;
+    d.py = p.x;
+    d.width = w;
+    d.color = "#fff";
+    d.text_bold = false;
+    d.text_italic = false;
+    d.text_color = "black";
+    d3.event.preventDefault();
+
+    textWidthArray.push(d.width);
+
+    update(root, false);
 }
 
 // Calculate and get the current text size, update the node width if necessary
@@ -400,7 +424,6 @@ function select_highlight(d) {
 function make_editable(d, field) {
     this
     .on("click", function(d) {
-        console.log(d3.event);
         // Highlight the selected node
         select_highlight(d);
 
