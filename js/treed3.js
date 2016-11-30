@@ -9,6 +9,7 @@ var h = 35, w = 100, rx = 10, ry = 10;
 var tree = d3.layout.tree()
     .nodeSize([w + 5, h]);
 
+// Set root props
 var root = {
     "name": "Concept",
     "id": 1,
@@ -20,11 +21,13 @@ var root = {
     "text_italic": false,
     "text_color": "black"
     };
-
 var nodes = tree(root);
 
 // Set the initial id
 var id = 2; 
+
+// Set the intiial text box display status
+var textBoxDisplay = false;
 
 // Set the parent x and y for all nodes, check
 nodes.forEach( function(node) {
@@ -42,16 +45,21 @@ var diagonal = d3.svg.diagonal()
         return [d.x, d.y]; 
     });
 
-// Draggable setting
+// Drag and move setting
 var dragmove = d3.behavior.zoom()
       .scaleExtent([.5, 10])
       .on("zoom", zoom)
       .translate([margin.left, margin.top]);
 
+// Zoom function to take care of zoom and drag
 function zoom() {
     svg.attr("transform", "translate("+ (d3.event.translate[0]) + "," + (d3.event.translate[1])  +")scale(" + d3.event.scale + ")");
     // when zooming, remove the text input box
-    d3.selectAll("foreignObject").remove();
+    if (textBoxDisplay == true) {
+        console.log("zoom");
+        updateText();
+        textBoxDisplay == false;
+    }
 }
 
 // Set container and svg canvas
@@ -208,7 +216,7 @@ function update(root, condition) {
                 return d.name; 
             });
 
-    // Make the root node larger with larger font
+    // Make the root node larger with larger font. Remove its delete button
     var rootNode = d3.select('.node');
     rootNode.select('.circles .main')
         .attr("x", -root.width/2)
@@ -328,7 +336,9 @@ function update(root, condition) {
 d3.select('body')
     .on("keydown", function() {
         var e = d3.event;
-        if (e.keyCode == 46 || e.keyCode == 8) {
+        // If key is delete/backspace 
+        //    and the text input box is not displayed (avoiding confusing deleteing a text/node)
+        if ((e.keyCode == 46 || e.keyCode == 8) && textBoxDisplay == false) {
             // Get the selected node
             var node = d3.select('.main[selected*="selected"]')[0][0];
             if (!node) {
@@ -386,9 +396,7 @@ function addNode(thisObj) {
     d.text_italic = false;
     d.text_color = "black";
     d3.event.preventDefault();
-
     textWidthArray.push(d.width);
-
     update(root, false);
 }
 
@@ -397,10 +405,9 @@ function updateNodeWidth(d) {
     // Get the current node's new text width
     var textNode = d3.select('[id="' + d.id + '"]').select('.label').select('text').node();
     var textWidth = textNode.getBBox().width;
-
+    // Remove that width from textWidthArray
     removeWidth(d.width);
     d.width = textWidth + 40;
-
     // Update the text width to the text width array
     textWidthArray.push(d.width);
 }
@@ -416,10 +423,10 @@ function removeWidth(width) {
 // Highlight node when selected
 function select_highlight(d) {
     d3.selectAll('.main')
-        .style('stroke', 'steelblue')
+        .style('stroke', 'steelblue');
     // Highlight the selected node
     d3.select('[id="' + d.id + '"]').select('.circles .main')
-        .style('stroke', '#ffb3b3')
+        .style('stroke', '#ffb3b3');
 }
 
 // Parse string and get numbers in it in an array
@@ -436,7 +443,55 @@ function parseStr(str) {
     return array;
 }
 
-var textBoxDisplay = false;
+// When a text box is present and users click anywhere other than the text box, remove the textbox
+$(document).on('click', function(e) {
+    if (textBoxDisplay == true) {
+        // if the textbox is going to be displayed, 
+        //   checking areas outside the both the text area and the inputbox will remove the text input box
+        if ($(e.target).is('text') === false && $(e.target).is('input') === false) {
+            console.log("click out");
+            updateText();
+            textBoxDisplay = false;
+        } // end of if target
+    }
+})
+
+// Update text display, remove text input box when done
+function updateText() {
+    var inp = d3.select('input');
+    var txt = inp.node().value;
+
+    var selected_node = d3.select('.main[selected*="selected"]')[0][0];
+    d = selected_node.__data__;
+
+    var textChanged = true;
+    if (d.name == txt) {
+        textChanged = false;
+    }
+
+    d.name = txt;
+
+    if (txt !== null && txt !== "") {
+        // If d is root
+        if (d.id == 1) {
+            root = d;
+        }
+
+        // Remove the text input box
+        d3.selectAll("foreignObject").remove();
+        textBoxDisplay = false;
+
+        if (textChanged == true) {
+            // Update tree, wait until the text is updated
+            update(root, true);
+            // Update node's width
+            updateNodeWidth(d);
+            // Update tree
+            update(root, true);
+        }
+
+    }
+} // end of updateText()
 
 // Edit text
 // Adpted from: https://gist.github.com/GerHobbelt/2653660
@@ -452,6 +507,8 @@ function make_editable(d, field) {
         d3.selectAll("foreignObject").remove();
 
         var xy = this.getBBox();
+        console.log(this);
+        console.log(xy);
 
         var el = d3.select(this);
 
@@ -468,11 +525,12 @@ function make_editable(d, field) {
                 .attr("x", function() {
                     var x;
                     // Apply special treatment to the first node's position x
+                    // 20 is the total margin set between text and the node
                     if (d.id == 1) {
-                        x = ((xy.x + d.px - d.width/6)*t_scale + t_x);
+                        x = ((xy.x + d.px - 20/2)*t_scale + t_x);
                     // Normal treatment of position x
                     } else {
-                        x = ((xy.x + d.px - d.width/4)*t_scale + t_x);
+                        x = ((xy.x + d.px - 20/2)*t_scale + t_x);
                     }
                     return x;
                 })
@@ -486,7 +544,7 @@ function make_editable(d, field) {
                     return d.name;
                 })
                 .attr("style", "width: " + d.width*0.9*t_scale + "px; height: " + (20*t_scale) + "px; min-height: 15px; color: black; font-size: " + (15*t_scale) +"px; font-weight: normal; overflow: hidden;")
-                // Remove the form when you jump out (form looses focus) or hit ENTER:
+                // // Remove the form when you jump out (form looses focus) or hit ENTER:
                 // .on("blur", function() {
                 //     var txt = inp.node().value;
                 //     d[field] = txt;
@@ -534,6 +592,7 @@ function make_editable(d, field) {
                         e.preventDefault();
 
                         var txt = inp.node().value;
+                        d[field] = txt;
 
                         var textChanged = true;
                         if (d.name == txt) {
@@ -543,12 +602,17 @@ function make_editable(d, field) {
                         d.name = txt;
 
                         if (txt !== null && txt !== "") {
-                            d[field] = txt;
                             el.text(function(d) { 
                                 return d[field]; 
                             });
 
+                            // If d is root
+                            if (d.id == 1) {
+                                root = d;
+                            }
+
                             d3.selectAll("foreignObject").remove();
+                            textBoxDisplay = false;
 
                             if (textChanged == true) {
                                 // Update tree, wait until the text is updated
@@ -565,17 +629,4 @@ function make_editable(d, field) {
                     } // end of keypress
                 });
     });
-
-    // When a text box is present and users click anywhere other than the text box, remove the textbox
-    $(document).on('click', function(e) {
-        if (textBoxDisplay == true) {
-            // if the textbox is going to be displayed, 
-            //   checking areas outside the both the text area and the inputbox will remove the text input box
-            if ($(e.target).is('text') === false && $(e.target).is('input') === false) {
-                d3.selectAll("foreignObject").remove();
-                // text input box is now removed, mark text box display back to false
-                textBoxDisplay = false;
-            }
-        }
-    })
-}
+} // end of make_text_editable()

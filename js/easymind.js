@@ -1,10 +1,21 @@
 $(document).ready(function() {
 
+	// When a node is selected, mark it as selected
 	$(document).on('click', '.main', function() {
 		// Unselect all others
 		$('.main').attr("selected", false);
 		// Select the clicked node
 		$(this).attr("selected", true);
+	})
+
+	// When a text is selected, mark the its parent node selected
+	$(document).on('click', '.label', function() {
+		// Unselect all others
+		$('.main').attr("selected", false);
+		var textNode = $(this);
+		var mainNode = textNode.parent()[0].childNodes[0].childNodes[0];
+		// Select the clicked node
+		$(mainNode).attr("selected", true);
 	})
 
 	function getText() {
@@ -13,12 +24,12 @@ $(document).ready(function() {
 		}
 		var node = $('.main[selected*="selected"]');
 		var grandparent = node.parent().parent();
-		var text = grandparent[0].childNodes[1].childNodes[0];
+		var textNode = grandparent[0].childNodes[1].childNodes[0];
 
-		return d3.select(text);
+		return d3.select(textNode);
 	}
 
-	// Text bold
+	// Text bold 
 	$('#text-bold').click( function() {
 		var text = getText();
 		if (!text) {
