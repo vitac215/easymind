@@ -336,7 +336,6 @@ d3.select('body')
 
 // Delete node and its children
 function deleteNode(thisObj) {
-    console.log(thisObj);
     // Get the node that the delete button is bind to
     var p = thisObj.__data__; 
     if(p.id != 1) {

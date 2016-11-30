@@ -66,8 +66,8 @@ $(document).ready(function() {
 
 	// Node color
 	$('#node-color').colorpicker().on('changeColor', function(e) {
-		var node = d3.select('.main[selected*="selected"]')[0][0];
-		if (!node) {
+		var node = d3.select('.main[selected*="selected"]');
+		if (!node[0][0]) {
 			return;
 		}
 		node.style('fill', function(d) {
