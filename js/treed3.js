@@ -179,7 +179,8 @@ function update(root, condition) {
     nodesEnter.append('g')
         .attr('class', 'label')
         .append('text')
-            .attr("dy", "0.35em").attr("text-anchor", "middle")
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "middle")
             .text(function(d) { 
                 return d.name; 
             })
@@ -419,6 +420,20 @@ function select_highlight(d) {
         .style('stroke', '#ffb3b3')
 }
 
+// Parse string and get numbers in it in an array
+function parseStr(str) {
+    var raw_array = str.match(/[+-]?\d+(\.\d+)?/g);
+    var array = new Array(raw_array.length);
+    for (i = 0; i < raw_array.length; i++) {
+        array[i] = parseFloat(raw_array[i]);
+    }
+    // If scale is not defined, set it to be 1
+    if (!array[2]) {
+        array[2] = 1;
+    }
+    return array;
+}
+
 // Edit text
 // Adpted from: https://gist.github.com/GerHobbelt/2653660
 function make_editable(d, field) {
@@ -432,65 +447,90 @@ function make_editable(d, field) {
             d3.selectAll("foreignObject").remove();
         }
 
-        var p = this.parentNode;
+
+        var p = this.parentNode.parentNode.parentNode;
 
         var xy = this.getBBox();
-        var p_xy = p.getBBox();
+        // var p_xy = p.getBBox();
 
         // xy.x = p_xy.x;
         // xy.y = p_xy.y;
 
         var el = d3.select(this);
-        var p_el = d3.select(p);
+        // var p_el = d3.select(p);
 
-        var frm = p_el.append("foreignObject");
+        // Get the transformation data
+        var str = svg.attr("transform");
+        var t_array = parseStr(str);
+        var t_x = t_array[0];
+        var t_y = t_array[1];
+        var t_scale = t_array[2];
+
+        // var frm = p_el.append("foreignObject");
+        var frm = d3.select('svg').append("foreignObject");
 
         var inp = frm
-                .attr("x", -150)
-                .attr("y", -10)
+                // .attr("transform", "translate(" + d.x + "," + d.y + ")")
+                // .attr("transform", "translate("+ (t_array[0]) + "," + (t_array[1])  +")scale(" + t_array[2] + ")")
+                // .attr("x", 150)
+                // .attr("y", 10)
+                // .attr("x", xy.x)
+                // .attr("y", xy.y)
+                // .attr("x", xy.x + d.px - d.width/4)
+                // .attr("y", xy.y + d.py)
+                .attr("x", function() {
+                    var x;
+                    if (d.id == 1) {
+                        x = ((xy.x + d.px - d.width/6)*t_scale + t_x);
+                    } else {
+                        x = ((xy.x + d.px - d.width/4)*t_scale + t_x);
+                    }
+                    return x;
+                })
+                .attr("y", ((xy.y + d.py)*t_scale + t_y) )
                 .attr("width", 300)
                 .attr("height", 25)
-                .append("xhtml:div")
+                .append("xhtml:form")
                 .append("input")
                 .attr("value", function() {
                     this.focus();
                     return d.name;
                 })
-                .attr("style", "width: " + d.width*0.9 + "px ; height: 20px; color: black; font-size: 15px; font-weight: normal; overflow: hidden;")
+                .attr("style", "width: " + d.width*0.9*t_scale + "px; height: " + (20*t_scale) + "px; min-height: 15px; color: black; font-size: " + (15*t_scale) +"px; font-weight: normal; overflow: hidden;")
                 // Remove the form when you jump out (form looses focus) or hit ENTER:
-                // .on("blur", function() {
-                //     var txt = inp.node().value;
-                //     d[field] = txt;
+                .on("blur", function() {
+                    var txt = inp.node().value;
+                    d[field] = txt;
 
-                //     var textChanged = true;
-                //     if (d.name == txt) {
-                //         textChanged = false;
-                //     }
+                    var textChanged = true;
+                    if (d.name == txt) {
+                        textChanged = false;
+                    }
 
-                //     d.name = txt;
+                    d.name = txt;
 
-                //     if (txt !== null && txt !== "") {
-                //         // If d is root
-                //         if (d.id == 1) {
-                //             root = d;
-                //         }
+                    if (txt !== null && txt !== "") {
+                        // If d is root
+                        if (d.id == 1) {
+                            root = d;
+                        }
 
-                //         // Remove the whole form box
-                //         p_el.selectAll("foreignObject").remove();
+                        // Remove the whole form box
+                        d3.selectAll("foreignObject").remove();
 
-                //         if (textChanged == true) {
-                //             // Update tree, wait until the text is updated
-                //             update(root, true);
+                        if (textChanged == true) {
+                            // Update tree, wait until the text is updated
+                            update(root, true);
 
-                //             // Update node's width
-                //             updateNodeWidth(d);
+                            // Update node's width
+                            updateNodeWidth(d);
 
-                //             // Update tree
-                //             update(root, true);
-                //         }
-                //     }
+                            // Update tree
+                            update(root, true);
+                        }
+                    }
 
-                // })
+                })
                 .on("keypress", function() {
                     // IE fix
                     if (!d3.event) {
@@ -520,8 +560,8 @@ function make_editable(d, field) {
                                 return d[field]; 
                             });
 
-                            if (p_el.selectAll("foreignObject").parentNode) {
-                                p_el.selectAll("foreignObject").remove();
+                            if (d3.selectAll("foreignObject").parentNode) {
+                                d3.selectAll("foreignObject").remove();
                             }
 
                             if (textChanged == true) {
