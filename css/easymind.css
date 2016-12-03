@@ -20,6 +20,15 @@ svg {
 	margin-right: 20px;
 }
 
+.navbar-brand {
+	padding: 5px;
+}
+
+#logo {
+	height: 40px;
+	margin-left: 10px;
+}
+
 .node .main {
 	fill: #fff;
 	stroke: steelblue;
