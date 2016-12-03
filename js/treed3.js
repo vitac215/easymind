@@ -404,11 +404,14 @@ function updateNodeWidth(d) {
     var textWidth = textNode.getBBox().width;
     // Remove that width from textWidthArray
     removeWidth(d.width);
-    if (d.id != 1) {
-        d.width = textWidth + 40;   
-    }
+    d.width = textWidth + 40;
     // Update the text width to the text width array
-    textWidthArray.push(d.width); 
+    if (d.id == 1) {
+        // Root node's width doesn't affect the distance between the children nodes
+        textWidthArray.push(100);
+    } else {
+        textWidthArray.push(d.width);
+    }
 }
 
 // Remove a specific text width from textWidthArray
