@@ -1,38 +1,20 @@
-var margin = {top: 50, right: 120, bottom: 20, left: 550},
+var margin = {top: 50, right: 120, bottom: 20, left: 500},
     width = 100,
     height = 500 - margin.top - margin.bottom,
     i = 0;
 
-<<<<<<< HEAD:js/treed3.js
-var h = 35, w = 100, rx = 10, ry = 10;
-
-// Set non-fixed tree size so elements don't get overlapped
-var tree = d3.layout.tree()
-    .nodeSize([w + 5, h]);
-=======
 // Set non-fixed size 
 var tree = d3.layout.tree().nodeSize([70, 70]);
->>>>>>> parent of 63b8afc... before removing angular:js/tree.js
 
-// Set root props
 var root = {
     "name": "Concept",
-    "id": 1,
-    "x": 0,
-    "y": 0,
-    "width": w*1.3,
-    "color": "#fff",
-    "text_bold": false,
-    "text_italic": false,
-    "text_color": "black"
+    "id": 1
     };
+
 var nodes = tree(root);
 
 // Set the initial id
 var id = 2; 
-
-// Set the intiial text box display status
-var textBoxDisplay = false;
 
 // Set the parent x and y for all nodes, check
 nodes.forEach( function(node) {
@@ -50,32 +32,25 @@ var diagonal = d3.svg.diagonal()
         return [d.x, d.y]; 
     });
 
-// Drag and move setting
+// Draggable setting
 var dragmove = d3.behavior.zoom()
       .scaleExtent([.5, 10])
-      .on("zoom", zoom)
+      .on("zoom", zoomed)
       .translate([margin.left, margin.top]);
 
-// Zoom function to take care of zoom and drag
-function zoom() {
-    svg.attr("transform", "translate("+ (d3.event.translate[0]) + "," + (d3.event.translate[1])  +")scale(" + d3.event.scale + ")");
-    // when zooming, remove the text input box
-    if (textBoxDisplay == true) {
-        console.log("zoom");
-        updateText();
-        textBoxDisplay == false;
-    }
+function zoomed() {
+     svg.attr("transform", "translate("+ (d3.event.translate[0]) + "," + (d3.event.translate[1])  +")scale(" + d3.event.scale + ")");
 }
 
 // Set container and svg canvas
 var container = d3.select("body").append("svg")
         .attr("width", width + "%")
         .attr("height", height + margin.top + margin.bottom)
-        .call(dragmove)
-        .on("dblclick.zoom", null);
+        .call(dragmove);
 
 var svg = container.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  // locaiton of initial node
+
 
 var node = svg.selectAll(".node");
 var link = svg.selectAll(".link");
@@ -83,7 +58,6 @@ var link = svg.selectAll(".link");
 // Reset zoom function
 d3.select("#reset").on("click", reset);
 
-// Reset function
 function reset() {
     svg.transition()
         .duration(500)
@@ -92,31 +66,10 @@ function reset() {
     dragmove.translate([margin.left, margin.top]);
 }
 
-// An array to keep track of the nodes' text width 
-var textWidthArray = [];
-textWidthArray.push(w);
 
-update(root, false);
+update(root);
 
-<<<<<<< HEAD:js/treed3.js
-// Main function for drawing 
-function update(root, condition) {
-    // If text is being updated, reconstruct the tree so node width can be updated
-    if (condition == true) {
-        // Sort the array to find the largest text width
-        textWidthArray.sort(function(a,b) {
-            return a - b;
-        });
-        var largest = textWidthArray.slice(-1)[0];
-        // Clear the tree for reconstructing
-        svg.selectAll("*").remove();
-        // Update tree's nodeSize so no nodes overlapped
-        tree = d3.layout.tree()
-            .nodeSize([largest + 5, h]);
-    }
-=======
 function update(root) {
->>>>>>> parent of 63b8afc... before removing angular:js/tree.js
 
     // Set duration for transition
     var duration1 = 500;
@@ -132,7 +85,7 @@ function update(root) {
 
     // Normalize fixed-depth and update the nodes
     node = node.data(nodes, function(d) { 
-        d.y = d.depth * 80; 
+        d.y = d.depth * 100; 
         return d.id || (d.id = ++i); 
     });
     link = link.data(links, function(d) { 
@@ -144,39 +97,31 @@ function update(root) {
         .attr("class", "node")
         .attr("transform", function(d) {
             return "translate(" + d.x + "," + d.y + ")";  
-<<<<<<< HEAD:js/treed3.js
-        })
-        .attr("id", function(d) {
-            return d.id;
-        })
-        .attr("width", function(d) {
-            return d.width;
-=======
->>>>>>> parent of 63b8afc... before removing angular:js/tree.js
         });
+
+    // Add label text
+    nodesEnter.append('g')
+        .attr('class', 'label')
+        .append('text')
+            .attr("y", -23)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "middle")
+            .text(function(d) { 
+                return d.name; 
+            })
+            .call(make_editable, function(d) { 
+                return d.name; 
+            });
 
     // Add circles
     var circlesGroup = nodesEnter.append('g')
         .attr('class','circles');
 
     // Add main circle
-    var mainCircles = circlesGroup.append("rect")
+    var mainCircles = circlesGroup.append("circle")
         .attr('class','main')
-        // .attr("r", 15)
-        .attr("x", function(d) {
-            return -d.width/2;
-        })
-        .attr("y", -h/2)
-        .attr("width", function(d) {
-            return d.width;
-        })
-        .attr("height", h)
-        .attr("rx", rx)
-        .attr("ry", ry)
-        .style('fill', function(d) {
-            return d.color;
-        })
-        .on("click", select_highlight);
+        .attr("r", 15)
+        .call(edit);
 
     // Add delete button (red)
     circlesGroup.append("circle")
@@ -194,74 +139,10 @@ function update(root) {
         .attr('cy', 0)
         .attr('fill','#1f800c')
         .attr('opacity', 0.8)
-        .attr("r", 0); 
-
-    // Add label text
-    nodesEnter.append('g')
-        .attr('class', 'label')
-        .append('text')
-            .attr("dy", "0.35em")
-            .attr("text-anchor", "middle")
-            .text(function(d) { 
-                return d.name; 
-            })
-            .attr("font-size", "17px")
-            .attr("font-weight", function(d) {
-                if (d.text_bold == true) {
-                    return "bold";
-                } else {
-                    return "normal";
-                }
-            })
-            .attr("font-style", function(d) {
-                if (d.text_italic == true) {
-                    return "italic";
-                } else {
-                    return "normal";
-                }
-            })
-            .attr("fill", function(d) {
-                return d.text_color;
-            })
-            .call(make_editable, function(d) { 
-                return d.name; 
-            });
-
-    // Make the root node larger with larger font. Remove its delete button
-    var rootNode = d3.select('.node');
-    rootNode.select('.circles .main')
-        .attr("x", -root.width/2)
-        .attr("y", -h*1.3/2)
-        .attr("width", root.width)
-        .attr("height", h*1.3)
-        .attr("rx", rx)
-        .attr("ry", ry)
-    rootNode.select('text')
-        .attr("font-size", "20px")
-        .attr("font-weight", function(d) {
-            if (d.text_bold == true) {
-                return "bold";
-            } else {
-                return "normal";
-            }
-        })
-        .attr("font-style", function(d) {
-            if (d.text_italic == true) {
-                return "italic";
-            } else {
-                return "normal";
-            }
-        })
-        .attr("fill", function(d) {
-            return d.text_color;
-        })
-        .text(function(d) {
-            return d.name;
-        });
-    rootNode.select('.circles .delete').remove();
+        .attr("r", 0);  
 
     // Hover onto the node, display the add and delete button
-    nodesEnter.on("mouseenter", function() {
+    circlesGroup.on("mouseenter", function() {
         var elem = this.__data__; 
         elem1 = d3.selectAll(".delete").filter(function(d, i) { 
             return elem.id == d.id ? this : null;
@@ -274,17 +155,17 @@ function update(root) {
         elem2.transition()
           .duration(duration1)
           .attr('cx', -20)
-          .attr('cy', 27)
-          .attr("r", 10); 
+          .attr('cy', 20)
+          .attr("r", 8); 
 
         elem1.transition()
           .duration(duration1)
           .attr('cx', 20)
-          .attr('cy', 27)
-          .attr("r", 10); 
+          .attr('cy', 20)
+          .attr("r", 8); 
     }); 
 
-    nodesEnter.on("mouseleave", function() {
+    circlesGroup.on("mouseleave", function() {
         var elem = this.__data__;   // When data is assigned to an element, it is stored in the property __data__
         elem1 = d3.selectAll(".delete").filter(function(d,i) { 
             return elem.id == d.id ? this : null;
@@ -306,12 +187,14 @@ function update(root) {
           .attr("r", 0); 
     }); 
 
+
     // Set links
     // Add links from the parent's old position
     var linkEnter = link.enter()
       .insert("path", '.node')
       .attr("class", "link")
       .attr("d", diagonal);
+
     // Link new nodes to new position
     var trans = svg.transition().duration(duration2);
     trans.selectAll(".link")
@@ -323,16 +206,9 @@ function update(root) {
             return "translate(" + d.x + "," + d.y + ")"; 
         });
 
+
     // Delete node
     node.select('.delete').on('click', function() {
-<<<<<<< HEAD:js/treed3.js
-        deleteNode(this);
-    });
-
-    // Add node
-    node.select('.add').on('click', function() { 
-        addNode(this);
-=======
         var p = this.__data__; 
         if(p.id != 1) {
             deleteNode(p);
@@ -375,7 +251,6 @@ function update(root) {
         d3.event.preventDefault();
 
         update(root);
->>>>>>> parent of 63b8afc... before removing angular:js/tree.js
     });
 
     node.exit().remove(); 
@@ -383,179 +258,8 @@ function update(root) {
 
     link.transition()
     .duration(duration2).attr("d", diagonal); 
-} // end of update()
-
-
-// Add keyboard support to delete node
-d3.select('body')
-    .on("keydown", function() {
-        var e = d3.event;
-        // If key is delete/backspace 
-        //    and the text input box is not displayed (avoiding confusing deleteing a text/node)
-        if ((e.keyCode == 46 || e.keyCode == 8) && textBoxDisplay == false) {
-            // Get the selected node
-            var node = d3.select('.main[selected*="selected"]')[0][0];
-            if (!node) {
-                return;
-            }
-            deleteNode(node);
-        }
-    });
-
-// Delete node and its children
-function deleteNode(thisObj) {
-    // Get the node that the delete button is bind to
-    var p = thisObj.__data__; 
-    if(p.id != 1) {
-        deleteChildNode(p);
-        var childArray = p.parent.children;
-        childArray = childArray.splice(childArray.indexOf(p), 1);
-
-        update(root, true);
-    }
-    function deleteChildNode(p) {
-        removeWidth(p.width);
-        if (!p.children) {
-            if (p.id) { 
-                p.id = null; 
-            }
-            return p; 
-        } else {
-            for (var i = 0; i < p.children.length; i++) {
-                p.children[i].id == null; 
-                deleteChildNode(p.children[i]); 
-            }
-            p.children = null;
-            return p; 
-        }
-    }
-}; 
-
-// Add a new node
-function addNode(thisObj) {
-    var p = thisObj.__data__;
-    var addedId = id++; 
-    var d = {name: 'Sub' + (addedId - 1)};  
-    d.id = addedId;
-    if (p.children) { 
-        p.children.push(d); 
-    } else { 
-        p.children = [d]; 
-    } 
-    d.px = p.x;
-    d.py = p.x;
-    d.width = w;
-    d.color = "#fff";
-    d.text_bold = false;
-    d.text_italic = false;
-    d.text_color = "black";
-    d3.event.preventDefault();
-    textWidthArray.push(d.width);
-    update(root, false);
 }
 
-<<<<<<< HEAD:js/treed3.js
-// Calculate and get the current text size, update the node width if necessary
-function updateNodeWidth(d) {
-    // Get the current node's new text width
-    var textNode = d3.select('[id="' + d.id + '"]').select('.label').select('text').node();
-    var textWidth = textNode.getBBox().width;
-    // Remove that width from textWidthArray
-    removeWidth(d.width);
-    d.width = textWidth + 40;
-    // Update the text width to the text width array
-    if (d.id == 1) {
-        // Root node's width doesn't affect the distance between the children nodes
-        textWidthArray.push(100);
-    } else {
-        textWidthArray.push(d.width);
-    }
-}
-
-// Remove a specific text width from textWidthArray
-function removeWidth(width) {
-    var i = textWidthArray.indexOf(width);
-    if (i != -1) {
-        textWidthArray.splice(i, 1);
-    }
-}
-
-// Highlight node when selected
-function select_highlight(d) {
-    d3.selectAll('.main')
-        .style('stroke', 'steelblue');
-    // Highlight the selected node
-    d3.select('[id="' + d.id + '"]').select('.circles .main')
-        .style('stroke', '#ffb3b3');
-}
-
-// Parse string and get numbers in it in an array
-function parseStr(str) {
-    var raw_array = str.match(/[+-]?\d+(\.\d+)?/g);
-    var array = new Array(raw_array.length);
-    for (i = 0; i < raw_array.length; i++) {
-        array[i] = parseFloat(raw_array[i]);
-    }
-    // If scale is not defined, set it to be 1
-    if (!array[2]) {
-        array[2] = 1;
-    }
-    return array;
-}
-
-// When a text box is present and users click anywhere other than the text box, remove the textbox
-$(document).on('click', function(e) {
-    if (textBoxDisplay == true) {
-        // if the textbox is going to be displayed, 
-        //   checking areas outside the both the text area and the inputbox will remove the text input box
-        if ($(e.target).is('text') === false && $(e.target).is('input') === false) {
-            console.log("click out");
-            updateText();
-            textBoxDisplay = false;
-        } // end of if target
-    }
-})
-
-// Update text display, remove text input box when done
-function updateText() {
-    var inp = d3.select('input');
-    var txt = inp.node().value;
-
-    var selected_node = d3.select('.main[selected*="selected"]')[0][0];
-    d = selected_node.__data__;
-
-    var textChanged = true;
-    if (d.name == txt) {
-        textChanged = false;
-    }
-
-    d.name = txt;
-
-    if (txt !== null && txt !== "") {
-        // If d is root
-        if (d.id == 1) {
-            root = d;
-        }
-
-        // Remove the text input box
-        d3.selectAll("foreignObject").remove();
-        textBoxDisplay = false;
-
-        if (textChanged == true) {
-            // Update tree, wait until the text is updated
-            update(root, true);
-            // Update node's width
-            updateNodeWidth(d);
-            // Update tree
-            update(root, true);
-        }
-
-    }
-} // end of updateText()
-
-// Edit text
-// Adpted from: https://gist.github.com/GerHobbelt/2653660
-=======
 function edit(d) {
     this.on("click", function(d) {
         // Unhighlight all other nodes
@@ -568,61 +272,65 @@ function edit(d) {
 }
 
 
->>>>>>> parent of 63b8afc... before removing angular:js/tree.js
 function make_editable(d, field) {
-    this
+    this.on("mouseover", function() {
+        d3.select(this).style("fill", "red");
+    })
+    .on("mouseout", function() {
+        d3.select(this).style("fill", null);
+    })
     .on("click", function(d) {
-        textBoxDisplay = true;
+        var p = this.parentNode;
+        // inject a HTML form to edit the content here...
 
-        // Highlight the selected node
-        select_highlight(d);
-
-        // Clear any previous text boxes
-        d3.selectAll("foreignObject").remove();
-
+        // bug in the getBBox logic here, but don't know what I've done wrong here;
+        // anyhow, the coordinates are completely off & wrong. :-((
         var xy = this.getBBox();
+        var p_xy = p.getBBox();
+
+        xy.x = p_xy.x;
+        xy.y = p_xy.y;
 
         var el = d3.select(this);
+        var p_el = d3.select(p);
 
-        // Get the transformation data
-        var str = svg.attr("transform");
-        var t_array = parseStr(str);
-        var t_x = t_array[0];
-        var t_y = t_array[1];
-        var t_scale = t_array[2];
-
-        var frm = d3.select('svg').append("foreignObject");
+        var frm = p_el.append("foreignObject");
 
         var inp = frm
-                .attr("x", function() {
-                    var x;
-                    // Apply special treatment to the first node's position x
-                    // 40 is the total margin set between text and the node
-                    if (d.id == 1) {
-                        x = ((xy.x + d.px - 40/2 + 5)*t_scale + t_x);
-                    // Normal treatment of position x
-                    } else {
-                        x = ((xy.x + d.px - 40/2 + 5)*t_scale + t_x);
-                    }
-                    return x;
-                })
-                .attr("y", ((xy.y + d.py)*t_scale + t_y) )
+                .attr("x", xy.x)
+                .attr("y", xy.y)
                 .attr("width", 300)
                 .attr("height", 25)
                 .append("xhtml:form")
                 .append("input")
                 .attr("value", function() {
+                    // nasty spot to place this call, but here we are sure that the <input> tag is available
+                    // and is handily pointed at by 'this':
                     this.focus();
-                    return d.name;
+                    return d[field];
                 })
-                .attr("style", "width: " + d.width*0.9*t_scale + "px; height: " + (20*t_scale) + "px; min-height: 15px; color: black; font-size: " + (15*t_scale) +"px; font-weight: normal; overflow: hidden;")
+                .attr("style", "width: 120px;")
+                // make the form go away when you jump out (form looses focus) or hit ENTER:
+                .on("blur", function() {
+                    var txt = inp.node().value;
+                    if(txt !== null && txt !== "")
+                    {
+                        d[field] = txt;
+                        el.text(function(d) { return d[field]; });
+                        // Note to self: frm.remove() will remove the entire <g> group! Remember the D3 selection logic!
+                        //p_el.select("foreignObject").remove();
+                        // Borra el Input al salir
+                        inp.remove();
+                    }
+                })
                 .on("keypress", function() {
                     // IE fix
-                    if (!d3.event) {
+                    if (!d3.event)
                         d3.event = window.event;
-                    }
+
                     var e = d3.event;
-                    if (e.keyCode == 13) {
+                    if (e.keyCode == 13)
+                    {
                         if (typeof(e.cancelBubble) !== 'undefined') // IE
                             e.cancelBubble = true;
                         if (e.stopPropagation)
@@ -630,38 +338,19 @@ function make_editable(d, field) {
                         e.preventDefault();
 
                         var txt = inp.node().value;
-                        d[field] = txt;
 
-                        var textChanged = true;
-                        if (d.name == txt) {
-                            textChanged = false;
+                        if(txt !== null && txt !== "")
+                        {
+                            d[field] = txt;
+                            el.text(function(d) { return d[field]; });
+
+                            // odd. Should work in Safari, but the debugger crashes on this instead.
+                            // Anyway, it SHOULD be here and it doesn't hurt otherwise.
+                            //p_el.select("foreignObject").remove();
+                            // Borra el Input al salir
+                            frm.remove();
                         }
-
-                        d.name = txt;
-
-                        if (txt !== null && txt !== "") {
-                            el.text(function(d) { 
-                                return d[field]; 
-                            });
-
-                            // If d is root
-                            if (d.id == 1) {
-                                root = d;
-                            }
-
-                            d3.selectAll("foreignObject").remove();
-                            textBoxDisplay = false;
-
-                            if (textChanged == true) {
-                                // Update tree, wait until the text is updated
-                                update(root, true);
-                                // Update node's width
-                                updateNodeWidth(d);
-                                // Update tree
-                                update(root, true);
-                            }
-                        }
-                    } // end of keypress
+                    }
                 });
     });
-} // end of make_text_editable()
+}
