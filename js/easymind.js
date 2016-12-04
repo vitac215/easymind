@@ -62,7 +62,6 @@ $(document).ready(function() {
 			}
 		})
 	})
-<<<<<<< HEAD
 
 	// Text color
 	$('#text-color').colorpicker().on('changeColor', function(e) {
@@ -93,6 +92,4 @@ $(document).ready(function() {
 		saveSvgAsPng($('svg')[0], "sample.png");
 	});
 
-=======
->>>>>>> parent of 63b8afc... before removing angular
 });
