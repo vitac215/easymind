@@ -7,7 +7,7 @@ EasyMind is a [D3.js](https://github.com/d3/d3) powered svg concept mapping tool
 It's mainly written in D3.js and jQuery.
 
 ## Installation
-EasyMind is entirely client-side, so you can simply downloading it and run it locally by clicking on ```index.html```.
+EasyMind is entirely client-side, so you can simply download and run it locally by clicking on ```index.html```.
 
 It can also be accessed on [GitHub page](https://vitac215.github.io/easymind/) (RECOMMENDED)
 
