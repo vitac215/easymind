@@ -527,10 +527,10 @@ function make_editable(d, field) {
                     // Apply special treatment to the first node's position x
                     // 40 is the total margin set between text and the node
                     if (d.id == 1) {
-                        x = ((xy.x + d.px - 40/2 + 9)*t_scale + t_x);
+                        x = ((xy.x + d.px - 40/2 + 5)*t_scale + t_x);
                     // Normal treatment of position x
                     } else {
-                        x = ((xy.x + d.px - 40/2 + 9)*t_scale + t_x);
+                        x = ((xy.x + d.px - 40/2 + 5)*t_scale + t_x);
                     }
                     return x;
                 })
