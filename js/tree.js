@@ -1,13 +1,18 @@
 var margin = {top: 50, right: 120, bottom: 20, left: 550},
     width = 100,
-    height = 700 - margin.top - margin.bottom,
+    height = 500 - margin.top - margin.bottom,
     i = 0;
 
+<<<<<<< HEAD:js/treed3.js
 var h = 35, w = 100, rx = 10, ry = 10;
 
 // Set non-fixed tree size so elements don't get overlapped
 var tree = d3.layout.tree()
     .nodeSize([w + 5, h]);
+=======
+// Set non-fixed size 
+var tree = d3.layout.tree().nodeSize([70, 70]);
+>>>>>>> parent of 63b8afc... before removing angular:js/tree.js
 
 // Set root props
 var root = {
@@ -93,6 +98,7 @@ textWidthArray.push(w);
 
 update(root, false);
 
+<<<<<<< HEAD:js/treed3.js
 // Main function for drawing 
 function update(root, condition) {
     // If text is being updated, reconstruct the tree so node width can be updated
@@ -108,6 +114,9 @@ function update(root, condition) {
         tree = d3.layout.tree()
             .nodeSize([largest + 5, h]);
     }
+=======
+function update(root) {
+>>>>>>> parent of 63b8afc... before removing angular:js/tree.js
 
     // Set duration for transition
     var duration1 = 500;
@@ -135,12 +144,15 @@ function update(root, condition) {
         .attr("class", "node")
         .attr("transform", function(d) {
             return "translate(" + d.x + "," + d.y + ")";  
+<<<<<<< HEAD:js/treed3.js
         })
         .attr("id", function(d) {
             return d.id;
         })
         .attr("width", function(d) {
             return d.width;
+=======
+>>>>>>> parent of 63b8afc... before removing angular:js/tree.js
         });
 
     // Add circles
@@ -313,12 +325,57 @@ function update(root, condition) {
 
     // Delete node
     node.select('.delete').on('click', function() {
+<<<<<<< HEAD:js/treed3.js
         deleteNode(this);
     });
 
     // Add node
     node.select('.add').on('click', function() { 
         addNode(this);
+=======
+        var p = this.__data__; 
+        if(p.id != 1) {
+            deleteNode(p);
+            var childArray = p.parent.children;
+            childArray = childArray.splice(childArray.indexOf(p), 1);
+
+            update(root);
+        }
+        function deleteNode(p) {
+            if (!p.children) {
+                if (p.id) { 
+                    p.id = null; 
+                }
+                return p; 
+            } else {
+                for(var i = 0; i < p.children.length; i++) {
+                    p.children[i].id == null; 
+                    deleteNode(p.children[i]); 
+                }
+                p.children = null;
+                return p; 
+            }
+        }
+    }); 
+
+
+    // Add node
+    node.select('.add').on('click', function() { 
+        var p = this.__data__;
+        var addedId = id++; 
+        var d = {name: 'Sub' + addedId};  
+        d.id = addedId;
+        if (p.children) { 
+            p.children.push(d); 
+        } else{ 
+            p.children = [d]; 
+        } 
+        d.px = p.x;
+        d.py = p.x;
+        d3.event.preventDefault();
+
+        update(root);
+>>>>>>> parent of 63b8afc... before removing angular:js/tree.js
     });
 
     node.exit().remove(); 
@@ -397,6 +454,7 @@ function addNode(thisObj) {
     update(root, false);
 }
 
+<<<<<<< HEAD:js/treed3.js
 // Calculate and get the current text size, update the node width if necessary
 function updateNodeWidth(d) {
     // Get the current node's new text width
@@ -497,6 +555,20 @@ function updateText() {
 
 // Edit text
 // Adpted from: https://gist.github.com/GerHobbelt/2653660
+=======
+function edit(d) {
+    this.on("click", function(d) {
+        // Unhighlight all other nodes
+        d3.selectAll('.main')
+            .style('stroke', 'steelblue')
+        // Highlight the selected node
+        d3.select(this)
+            .style('stroke', '#ffb3b3')
+    })
+}
+
+
+>>>>>>> parent of 63b8afc... before removing angular:js/tree.js
 function make_editable(d, field) {
     this
     .on("click", function(d) {
