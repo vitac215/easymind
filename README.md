@@ -9,7 +9,7 @@ It's mainly written in D3.js and jQuery.
 ## Installation
 EasyMind is entirely client-side, so you can simply download and run it locally by clicking on ```index.html``` (be aware that when you run it locally, the saving as png function loses some style control).
 
-It can also be accessed on [GitHub page](https://vitac215.github.io/easymind/) (RECOMMENDED)
+It can also be accessed on [GitHub page](https://vitac215.github.io/easymind/) (RECOMMENDED).
 
 ## Basic Usage
 * <b>Add / Delete a node</b>
